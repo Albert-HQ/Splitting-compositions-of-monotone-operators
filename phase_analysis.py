@@ -9,19 +9,23 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
 
 ROOT = Path(__file__).resolve().parent
 FIG = ROOT / 'figures'
 DATA = ROOT / 'data'
 FIG.mkdir(exist_ok=True)
 DATA.mkdir(exist_ok=True)
-plt.rcParams.update({'font.family':'DejaVu Sans','font.size':9,
-                     'axes.spines.top':False,'axes.spines.right':False,
-                     'axes.grid':True,'grid.alpha':0.18,
-                     'pdf.fonttype':42,'ps.fonttype':42,
-                     'savefig.bbox':'tight'})
-COLORS = ['#1675B6','#153C57','#00A779','#E77C29']
+plt.rcParams.update({
+    'font.family': 'DejaVu Sans',
+    'font.size': 10,
+    'axes.spines.top': True,
+    'axes.spines.right': True,
+    'axes.grid': True,
+    'grid.alpha': .25,
+    'pdf.fonttype': 42,
+    'ps.fonttype': 42,
+    'savefig.bbox': 'tight',
+})
 
 
 def gain(a, b, theta=0., alpha=1., beta=1., h=1.):
@@ -34,36 +38,59 @@ def gain(a, b, theta=0., alpha=1., beta=1., h=1.):
 
 
 def phase_figure():
-    phase=np.linspace(0,np.pi,361)
-    thetas=(-1.,0.,.5,1.)
-    a=b=1/3
-    fig,axs=plt.subplots(1,2,figsize=(7.15,2.75),layout='constrained')
-    rows=[]
-    for color,theta in zip(COLORS,thetas):
-        L=gain(a,b,theta)
-        q=float(np.max(abs(np.linalg.eigvals(L))))
-        T=np.zeros((len(phase),2,2),complex)
-        T[:,0,0]=a; T[:,0,1]=-a*np.exp(1j*phase)
-        T[:,1,0]=b*((1+theta)*a-theta)
-        T[:,1,1]=b*(1-(1+theta)*a*np.exp(1j*phase))
-        rate=np.max(abs(np.linalg.eigvals(T)),axis=1)
-        label=rf'$\theta={theta:g}$'
-        axs[0].plot(phase/np.pi,rate,color=color,lw=1.8,label=label)
-        axs[0].axhline(q,color=color,lw=1,ls='--',alpha=.65)
-        axs[1].plot(phase/np.pi,q/rate,color=color,lw=1.8,label=label)
-        rows.append({'theta':theta,'certified_factor':q,
-                     'phase_zero_factor':float(rate[0]),
-                     'phase_pi_factor':float(rate[-1]),
-                     'minimum_ratio':float(np.min(q/rate)),
-                     'maximum_ratio':float(np.max(q/rate))})
-    axs[0].set(title='Exact factors and gain bounds',ylabel='Linear factor',xlabel=r'Coupling phase $\varphi/\pi$')
-    axs[1].set(title='Certificate-to-exact ratio',ylabel=r'Certificate-to-exact ratio $\rho(L_\theta)/r_\theta(\varphi)$',xlabel=r'Coupling phase $\varphi/\pi$')
+    phase = np.linspace(0, np.pi, 361)
+    thetas = (-1., 0., .5, 1.)
+    colors = ('tab:blue', 'tab:orange', 'tab:green', 'tab:red')
+    labels = (
+        r'$\theta=-1$ (original)',
+        r'$\theta=0$ (sequential)',
+        r'$\theta=1/2$ (positive extrapolation)',
+        r'$\theta=1$ (reflected)',
+    )
+    a = b = 1 / 3
+    fig, axs = plt.subplots(1, 2, figsize=(11.5, 4.6))
+    fig.subplots_adjust(left=.06, right=.98, bottom=.14, top=.78, wspace=.1425)
+    fig.suptitle('Phase-resolved sharpness across interpolation and extrapolation',
+                 y=.967, fontsize=12)
+    rows = []
+    for color, theta, label, marker in zip(colors, thetas, labels, ('o', 's', 'D', '^')):
+        L = gain(a, b, theta)
+        q = float(np.max(abs(np.linalg.eigvals(L))))
+        T = np.zeros((len(phase), 2, 2), complex)
+        T[:, 0, 0] = a
+        T[:, 0, 1] = -a * np.exp(1j * phase)
+        T[:, 1, 0] = b * ((1 + theta) * a - theta)
+        T[:, 1, 1] = b * (1 - (1 + theta) * a * np.exp(1j * phase))
+        rate = np.max(abs(np.linalg.eigvals(T)), axis=1)
+        axs[0].plot(phase / np.pi, rate, color=color, lw=1.8, label=label)
+        axs[0].hlines(q, 0, 1, color=color, lw=1.15, linestyles='--')
+        axs[0].plot(phase[::90] / np.pi, rate[::90], color=color, marker=marker,
+                    markerfacecolor='none', markersize=5, linestyle='none')
+        axs[1].plot(phase / np.pi, q / rate, color=color, lw=1.8, label=label)
+        rows.append({'theta': theta, 'certified_factor': q,
+                     'phase_zero_factor': float(rate[0]),
+                     'phase_pi_factor': float(rate[-1]),
+                     'minimum_ratio': float(np.min(q / rate)),
+                     'maximum_ratio': float(np.max(q / rate))})
+    axs[0].set_title('Exact modal factors and canonical gain roots', fontsize=12)
+    axs[0].set_ylabel('linear factor', fontsize=10)
+    axs[0].set_ylim(.25, .96)
+    axs[0].text(.505, .265, 'skew', fontsize=8)
+    axs[1].set_title('Certificate-to-exact ratio', fontsize=12)
+    axs[1].set_ylabel(r'Certificate-to-exact ratio $\rho(L_\theta)/r_\theta(\varphi)$', fontsize=10)
+    axs[1].set_ylim(.95, 2.35)
+    axs[1].axhline(1, color='0.4', lw=1, ls='--')
     for ax in axs:
-        ax.set_xlim(0,1); ax.set_xticks(np.linspace(0,1,5))
-    axs[0].legend(loc='upper left',ncol=2,frameon=False,fontsize=8)
-    axs[1].axhline(1,color='#555555',lw=.7,ls=':')
-    fig.savefig(FIG/'phase_resolved_gain_sharpness.pdf')
-    fig.savefig(FIG/'phase_resolved_gain_sharpness.png', dpi=180)
+        ax.set_xlim(-.05, 1.05)
+        ax.set_xticks(np.linspace(0, 1, 5))
+        ax.set_xlabel(r'coupling phase $\varphi/\pi$', fontsize=10)
+        ax.tick_params(labelsize=10)
+        ax.grid(alpha=.25)
+        ax.axvline(.5, color='0.4', lw=1, ls=':')
+    axs[0].legend(loc='upper left', fontsize=7.5)
+    axs[1].legend(loc='upper right', fontsize=7.5)
+    fig.savefig(FIG / 'phase_resolved_gain_sharpness.pdf')
+    fig.savefig(FIG / 'phase_resolved_gain_sharpness.png', dpi=180)
     plt.close(fig)
     return rows
 
@@ -159,25 +186,44 @@ def calibration_figure():
         result=one_calibration(kind,aa.ravel(),bb.ravel(),(ya,xa),(yi,xi))
         results.append(result)
         print({k:v for k,v in result.items() if not isinstance(v,np.ndarray)},flush=True)
-    fig=plt.figure(figsize=(7.15,4.55),layout='constrained')
-    gs=fig.add_gridspec(2,2,height_ratios=[1.05,1])
-    top=[fig.add_subplot(gs[0,0]),fig.add_subplot(gs[0,1])]
-    bot=fig.add_subplot(gs[1,:])
-    for ax,res,title in zip(top,results,['Symmetric cycle coupling','Nonsymmetric shift coupling']):
-        im=ax.pcolormesh(mus,mus,res['fraction'].reshape(29,29),shading='nearest',vmin=0,vmax=1,cmap='Blues',rasterized=False,edgecolors='face',linewidth=.15)
-        xx=np.geomspace(.25,4.,300)
-        ax.plot(xx,1/xx,'--',color='#E77C29',lw=1.4)
-        unresolved=(res['state']==0).any(axis=1).reshape(29,29)
-        if unresolved.any():ax.scatter(aa[unresolved],bb[unresolved],s=7,c='#C55733',marker='x',lw=.6)
-        ax.set(xscale='log',yscale='log',xlim=(.15,4),ylim=(.15,4),title=title,xlabel=r'$\mu_A$',ylabel=r'$\mu_B$')
+    fig = plt.figure(figsize=(11.2, 7))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1, .95], wspace=.25, hspace=.33)
+    top = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])]
+    bot = fig.add_subplot(gs[1, :])
+
+    blue, orange = 'tab:blue', 'tab:orange'
+    boundary = np.geomspace(.25, 4, 300)
+    titles = ['Symmetric cycle-graph coupling', 'Nonsymmetric cyclic-shift coupling']
+    for ax, res, title in zip(top, results, titles):
+        mesh = ax.pcolormesh(mus, mus, res['fraction'].reshape(29, 29),
+                             shading='nearest', vmin=0, vmax=1, cmap='viridis')
+        ax.plot(boundary, 1 / boundary, '--', color=blue, lw=1.8,
+                label='certificate boundary')
+        unresolved = (res['state'] == 0).any(axis=1).reshape(29, 29)
+        if unresolved.any():
+            ax.scatter(aa[unresolved], bb[unresolved], s=18, color=blue,
+                       marker='x', linewidths=.8, label='unresolved runs')
+        ax.set(xscale='log', yscale='log')
+        ax.set_title(title, fontsize=12)
+        ax.set_xlabel(r'$\mu_A$', fontsize=10)
+        ax.set_ylabel(r'$\mu_B$', fontsize=10)
         ax.grid(False)
-    cb=fig.colorbar(im,ax=top,shrink=.85,pad=.01)
-    cb.set_label('Fraction reaching target',fontsize=8)
-    for col,res,label in zip([COLORS[0],COLORS[2]],results,['Symmetric coupling','Nonsymmetric coupling']):
-        bot.scatter(res['q_cert'],res['q_obs'],s=12,c=col,alpha=.7,linewidths=0,label=label)
-    bot.plot([0,1],[0,1],color='#777777',ls='--',lw=.9,label='Equal factors')
-    bot.set(xlim=(0,1.015),ylim=(0,1.015),xlabel=r'Certified Hilbert-norm factor $q_P$',ylabel=r'Observed tail factor $q_{\mathrm{obs},P}$',title='Rate calibration in the same diagonal Hilbert norm')
-    bot.legend(loc='upper left',frameon=False,fontsize=8,ncol=3)
+        ax.legend(loc='lower left', fontsize=8)
+
+    colorbar = fig.colorbar(mesh, ax=top, fraction=.046, pad=.03)
+    colorbar.set_label('observed convergence proportion', fontsize=10)
+    colorbar.ax.tick_params(labelsize=10)
+    for color, marker, res in zip([blue, orange], ['o', 's'], results):
+        bot.scatter(res['q_cert'], res['q_obs'], s=32, color=color, marker=marker,
+                    alpha=.55, linewidths=0, label=f"{res['kind']} coupling")
+    bot.plot([0, 1], [0, 1], '--', color=blue, lw=1.3, label='exact calibration')
+    bot.set(xlim=(0, 1.02), ylim=(0, 1.02))
+    bot.set_xlabel(r'certified factor $q_P$', fontsize=10)
+    bot.set_ylabel(r'observed tail factor $q_{\mathrm{obs},P}$', fontsize=10)
+    bot.set_title('Rate calibration in the diagonal Hilbert product norm', fontsize=12)
+    bot.grid(True, alpha=.25)
+    bot.legend(loc='upper left', fontsize=8, ncol=3)
+    fig.suptitle('Certificate phase diagram and rate calibration', y=.985, fontsize=12)
     fig.savefig(FIG/'certificate_phase_rate_calibration.pdf')
     fig.savefig(FIG/'certificate_phase_rate_calibration.png', dpi=180)
     plt.close(fig)
