@@ -1,0 +1,70 @@
+{
+  "phase": [
+    {
+      "theta": -1.0,
+      "certified_factor": 0.6666666666666666,
+      "phase_zero_factor": 0.4714045207910316,
+      "phase_pi_factor": 0.6666666666666663,
+      "minimum_ratio": 1.0000000000000004,
+      "maximum_ratio": 1.4142135623730951
+    },
+    {
+      "theta": 0.0,
+      "certified_factor": 0.5891972930813327,
+      "phase_zero_factor": 0.3333333333333333,
+      "phase_pi_factor": 0.5891972930813327,
+      "minimum_ratio": 1.0,
+      "maximum_ratio": 1.7675918792439982
+    },
+    {
+      "theta": 0.5,
+      "certified_factor": 0.760258802134805,
+      "phase_zero_factor": 0.3333333333333333,
+      "phase_pi_factor": 0.5,
+      "minimum_ratio": 1.52051760426961,
+      "maximum_ratio": 2.2807764064044154
+    },
+    {
+      "theta": 1.0,
+      "certified_factor": 0.8888888888888888,
+      "phase_zero_factor": 0.4444444444444446,
+      "phase_pi_factor": 0.4714045207910318,
+      "minimum_ratio": 1.8856180831641263,
+      "maximum_ratio": 1.9999999999999993
+    }
+  ],
+  "calibration": {
+    "dimension": 40,
+    "initializations": 8,
+    "seed": 20261112,
+    "grid_points_per_axis": 29,
+    "mu_range": [
+      0.15,
+      4.0
+    ],
+    "maximum_iterations": 5000,
+    "target_tolerance": 1e-08,
+    "results": [
+      {
+        "kind": "symmetric",
+        "ratio_median": 0.6176840292383855,
+        "certified_runs": 2400,
+        "certified_converged": 2400,
+        "total_runs": 6728,
+        "converged": 6728,
+        "divergent": 0,
+        "unresolved": 0
+      },
+      {
+        "kind": "nonsymmetric",
+        "ratio_median": 0.9428570081637617,
+        "certified_runs": 2400,
+        "certified_converged": 2400,
+        "total_runs": 6728,
+        "converged": 2400,
+        "divergent": 3994,
+        "unresolved": 334
+      }
+    ]
+  }
+}
