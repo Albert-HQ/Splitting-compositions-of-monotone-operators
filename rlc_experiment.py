@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Reproduce the periodic cubic-capacitor experiment in Section 5.
 
-Run from any directory: python code/rlc_experiment.py
-The script writes vector PDF figures and complete numeric data next to this file.
+From the repository root, run: python rlc_experiment.py
+The script writes PDF and PNG figures under figures/ and numeric data under data/.
 Circuit parameters and the sampling grid match the supplied physical-unit code.
 Time, voltage, current, flux, and charge are stored in SI units.
 """
@@ -20,7 +20,7 @@ from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.lines import Line2D
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 FIGURES = ROOT / "figures"
 DATA = ROOT / "data"
 FIGURES.mkdir(exist_ok=True)

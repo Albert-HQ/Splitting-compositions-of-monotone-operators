@@ -1,7 +1,7 @@
 """Reproduce the two phase/certificate illustrations in Section 4.
 
-Run from any directory: python code/phase_analysis.py
-All parameters and stopping rules are explicit; generated PDFs are vector graphics.
+From the repository root, run: python phase_analysis.py
+Plots are saved as PDF and PNG, and numerical summaries are saved under data/.
 """
 from pathlib import Path
 import json
@@ -11,7 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 FIG = ROOT / 'figures'
 DATA = ROOT / 'data'
 FIG.mkdir(exist_ok=True)
@@ -63,6 +63,7 @@ def phase_figure():
     axs[0].legend(loc='upper left',ncol=2,frameon=False,fontsize=8)
     axs[1].axhline(1,color='#555555',lw=.7,ls=':')
     fig.savefig(FIG/'phase_resolved_gain_sharpness.pdf')
+    fig.savefig(FIG/'phase_resolved_gain_sharpness.png', dpi=180)
     plt.close(fig)
     return rows
 
@@ -178,6 +179,7 @@ def calibration_figure():
     bot.set(xlim=(0,1.015),ylim=(0,1.015),xlabel=r'Certified Hilbert-norm factor $q_P$',ylabel=r'Observed tail factor $q_{\mathrm{obs},P}$',title='Rate calibration in the same diagonal Hilbert norm')
     bot.legend(loc='upper left',frameon=False,fontsize=8,ncol=3)
     fig.savefig(FIG/'certificate_phase_rate_calibration.pdf')
+    fig.savefig(FIG/'certificate_phase_rate_calibration.png', dpi=180)
     plt.close(fig)
     raw={}
     for res in results:
