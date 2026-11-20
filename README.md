@@ -19,7 +19,7 @@ The reference runs used Python 3.12.14. Both scripts write figures to
 
 [`phase_analysis.py`](phase_analysis.py) evaluates the exact modal factor at
 361 equally spaced coupling phases $\varphi\in[0,\pi]$ and compares it with the
-gain certificate. The scan uses $\theta\in\{-1,0,1/2,1\}$,
+gain certificate. The scan uses $\theta=-1,0,1/2,1$,
 $\alpha=\beta=L_H=1$, and $\ell_A=\ell_B=1/3$. The exact factor attains the
 certificate at $\varphi=\pi$ for $\theta=-1$ and $\theta=0$. The certificate
 is strictly above the exact factor across the scan for the two positive values
@@ -63,10 +63,9 @@ symmetric cycle and 0.9429 for the nonsymmetric shift.
 
 [`rlc_experiment.py`](rlc_experiment.py) computes the periodic response of the
 nonlinear circuit. The source is a 50 Hz sinusoid with a 1 V peak and period
-$T=0.02\,\mathrm{s}$. The centered periodic derivative uses $N=100$ samples,
-with spacing $h=0.0002\,\mathrm{s}$ and half-wave antisymmetry. The circuit
-parameters are $L=0.005\,\mathrm{H}$, $R=5\,\Omega$,
-$C_0=0.004\,\mathrm{F}$, and $C_3=0.004\,\mathrm{F/V^2}$ for the capacitor law
+$T=0.02$ s. The centered periodic derivative uses $N=100$ samples,
+with spacing $h=0.0002$ s and half-wave antisymmetry. The circuit parameters
+are $L=0.005$ H, $R=5$ Ω, $C_0=0.004$ F, and $C_3=0.004$ F/V² for the capacitor law
 $Q(v)=C_0v+C_3v^3$. The six state variables start at zero, with
 $\alpha=1$, $\beta=1000$, and $\theta=0$.
 
